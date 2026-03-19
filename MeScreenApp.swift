@@ -44,6 +44,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var cancellables = Set<AnyCancellable>()
     
     func applicationDidFinishLaunching(_ notification: Notification) {
+        // Use the compiled bundle icon instead of looking for a loose PNG file.
+        if let appIcon = NSImage(named: NSImage.applicationIconName) {
+            NSApp.applicationIconImage = appIcon
+        }
+        
         // Setup status bar first
         statusBarController = StatusBarController(cameraManager: cameraManager)
         statusBarController?.setupStatusBar()
@@ -107,15 +112,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         print("📐 Updating window size to: \(contentSize)×\(contentSize)")
         
-        // Animate the size change (0.45s for a smooth, unhurried resize)
-        NSAnimationContext.runAnimationGroup({ context in
-            context.duration = 0.45
+        // Animate the size change
+        NSAnimationContext.runAnimationGroup { context in
+            context.duration = 0.3
             context.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
             window.animator().setContentSize(NSSize(width: contentSize, height: contentSize))
-        }, completionHandler: { [weak self] in
-            // Window is at its final size — fade the stream back in
-            self?.cameraManager.finishTransition()
-        })
+        }
     }
 }
-
